@@ -27,9 +27,9 @@ public final class Index {
     public Index(FileReader reader,
                  Tokenizer tokenizer,
                  Normalizer normalizer) {
-        this.reader = reader;
-        this.tokenizer = tokenizer;
-        this.normalizer = normalizer;
+        this.reader = Objects.requireNonNull(reader);
+        this.tokenizer = Objects.requireNonNull(tokenizer);
+        this.normalizer = Objects.requireNonNull(normalizer);
 
         this.results = new HashMap<>();
         this.indexedFiles = new HashSet<>();
@@ -41,13 +41,16 @@ public final class Index {
      * @throws IndexException
      * */
     public boolean addFile(String path) {
+        if(path == null)
+            throw new IndexException("Path could`t be null");
+
         lock.writeLock().lock();
 
         try {
             Path newFile = Path.of(path);
 
             if(!this.isSupportedFile(newFile))
-                throw new IllegalArgumentException(String.format("Неподдерживаемый формат файла: %s",
+                throw new IllegalArgumentException(String.format("Unsupported file format: %s",
                         newFile.toAbsolutePath()));
 
             SearchResult newIndexedFile = new SearchResult(newFile);
@@ -55,7 +58,7 @@ public final class Index {
                 return false;
 
             if (!Files.exists(newFile))
-                throw new NoSuchFileException(String.format("Файла не существует: %s",
+                throw new NoSuchFileException(String.format("File does not exist: %s",
                         newFile.toAbsolutePath()));
 
             String content = reader.readFile(newFile);
@@ -80,10 +83,14 @@ public final class Index {
      * @param recursive Необходимо ли рекурсивно проходить в поддиректории
      * */
     public void addDir(String path,
-                          boolean recursive) throws IOException {
+                       boolean recursive) throws IOException {
+        if(path == null)
+            throw new IndexException("Path could`t be null");
+
         Path dir = Path.of(path);
+
         if (!Files.exists(dir) || !Files.isDirectory(dir))
-            throw new IndexException(String.format("Не является директорией: %s",
+            throw new IndexException(String.format("Not a directory: %s",
                     dir.toAbsolutePath()));
 
         List<Path> indexedFiles;
@@ -138,6 +145,9 @@ public final class Index {
      * @return boolean - Результат выполнения
      * */
     public boolean removeFile(String path){
+        if(path == null)
+            throw new IndexException("Path could`t be null");
+
         lock.writeLock().lock();
         try{
             SearchResult removedFile = new SearchResult(Path.of(path.trim()).toAbsolutePath());
@@ -167,6 +177,9 @@ public final class Index {
      * @return Set<String> - Множество файлов, в которых присутствует токен
      * */
     public Set<String> search(String token){
+        if(token == null)
+            throw new IndexException("Token could`t be null");
+
         lock.readLock().lock();
         try{
             Set<SearchResult> res = results.get(normalizer.normalize(token));
@@ -180,6 +193,9 @@ public final class Index {
         }
     }
 
+    /** Список идексируемых файлов
+     * @return List<String> - Список файлов
+     * */
     public List<String> getIndexedFiles(){
         lock.readLock().lock();
         try{
