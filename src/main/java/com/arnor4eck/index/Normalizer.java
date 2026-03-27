@@ -7,5 +7,5 @@ public interface Normalizer {
      * @param token Слово, которое необходимо нормализовать
      * @return String - нормальная форма
      * */
-    String normalize(String token);
+    String normalize(String token) throws IllegalArgumentException;
 }
