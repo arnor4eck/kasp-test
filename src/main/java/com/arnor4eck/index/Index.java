@@ -97,10 +97,14 @@ public final class Index {
                 .anyMatch(suffix -> file.getFileName().toString().endsWith(suffix));
     }
 
+    /** Удаление файла из индекса
+     * @param path Путь к удаляемому файлу
+     * @return boolean - Результат выполнения
+     * */
     public boolean removeFile(String path){
         lock.writeLock().lock();
         try{
-            SearchResult removedFile = new SearchResult(path.trim());
+            SearchResult removedFile = new SearchResult(Path.of(path.trim()).toAbsolutePath());
             if(!indexedFiles.contains(removedFile))
                 return false;
 
@@ -119,6 +123,20 @@ public final class Index {
         }
         finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    /** Поиск файлов по слову
+     * @param token Токен, по которому ведётся поиск
+     * @return Set<String> - Множество файлов, в которых присутствует токен
+     * */
+    Set<String> search(String token){
+        lock.readLock().lock();
+        try{
+            return results.get(normalizer.normalize(token)).stream()
+                    .map(SearchResult::filePath).collect(Collectors.toSet());
+        }finally {
+            lock.readLock().unlock();
         }
     }
 }

@@ -2,7 +2,7 @@ package com.arnor4eck.index;
 
 import java.nio.file.Path;
 
-public record SearchResult(String filePath) {
+record SearchResult(String filePath) {
     @Override
     public String toString() {
         return filePath;
