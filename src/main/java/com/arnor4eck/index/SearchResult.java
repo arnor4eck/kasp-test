@@ -9,7 +9,7 @@ record SearchResult(String filePath) {
     }
 
     public SearchResult(Path file) {
-        this(file.getFileName().toString());
+        this(file.toAbsolutePath().toString());
     }
 
     @Override
