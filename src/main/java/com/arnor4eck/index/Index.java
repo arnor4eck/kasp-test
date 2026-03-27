@@ -1,11 +1,14 @@
 package com.arnor4eck.index;
 
+import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Index {
     private final FileReader reader;
@@ -63,6 +66,34 @@ public final class Index {
         }catch (Exception e) {
             throw new IndexException(e.getMessage(), e);
         } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /** Добавление каталога в индекс
+     * @param path Путь к кталогу
+     * @param recursive Необходимо ли рекурсивно проходить в поддиректории
+     * */
+    public void addDir(String path,
+                          boolean recursive) throws IOException {
+        Path dir = Path.of(path);
+        if (!Files.exists(dir) || !Files.isDirectory(dir))
+            throw new IndexException(String.format("Не является директорией: %s",
+                    dir.toAbsolutePath()));
+
+        List<Path> indexedFiles;
+        try(Stream<Path> files = recursive ? Files.walk(dir) : Files.list(dir)){
+            indexedFiles = files
+                    .filter(Files::isRegularFile)
+                    .filter(this::isSupportedFile)
+                    .toList();
+        }
+
+        lock.writeLock().lock();
+        try {
+            for(Path file : indexedFiles)
+                this.addFile(file.toAbsolutePath().toString());
+        }finally {
             lock.writeLock().unlock();
         }
     }
