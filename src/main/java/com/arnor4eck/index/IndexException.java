@@ -1,6 +1,6 @@
 package com.arnor4eck.index;
 
-public class IndexException extends RuntimeException {
+class IndexException extends RuntimeException {
     public IndexException(String message) {
         super(message);
     }

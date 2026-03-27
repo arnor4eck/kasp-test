@@ -50,15 +50,15 @@ public final class Index {
             Path newFile = Path.of(path);
 
             if(!this.isSupportedFile(newFile))
-                throw new IllegalArgumentException(String.format("Unsupported file format: %s",
+                throw new IndexException(String.format("Unsupported file format: %s",
                         newFile.toAbsolutePath()));
 
             SearchResult newIndexedFile = new SearchResult(newFile);
             if (indexedFiles.contains(newIndexedFile))
                 return false;
 
-            if (!Files.exists(newFile))
-                throw new NoSuchFileException(String.format("File does not exist: %s",
+            if (!Files.exists(newFile) || !Files.isRegularFile(newFile))
+                throw new IndexException(String.format("File does not exist: %s",
                         newFile.toAbsolutePath()));
 
             String content = reader.readFile(newFile);
