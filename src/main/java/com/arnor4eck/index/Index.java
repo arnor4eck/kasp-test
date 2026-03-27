@@ -22,7 +22,6 @@ public final class Index {
         this.reader = reader;
         this.tokenizer = tokenizer;
         this.normalizer = normalizer;
-        this.searcher = searcher;
 
         this.results = new HashMap<>();
         this.indexedFiles = new HashSet<>();
