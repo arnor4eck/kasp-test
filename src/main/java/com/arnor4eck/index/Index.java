@@ -3,10 +3,7 @@ package com.arnor4eck.index;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
@@ -99,5 +96,30 @@ public final class Index {
         return reader.getPossibleSuffixes()
                 .stream()
                 .anyMatch(suffix -> file.getFileName().toString().endsWith(suffix));
+    }
+
+    public boolean removeFile(String path){
+        lock.writeLock().lock();
+        try{
+            SearchResult removedFile = new SearchResult(path.trim());
+            if(!indexedFiles.contains(removedFile))
+                return false;
+
+            Iterator<Set<SearchResult>> it = results.values().iterator();
+
+            while(it.hasNext()){
+                Set<SearchResult> set = it.next();
+                set.remove(removedFile); // удаляем файл от токена
+
+                if(set.isEmpty()) // если этого токена больше нет в других файлах - удаляем и сам токен
+                    it.remove();
+            }
+
+            indexedFiles.remove(removedFile);
+            return true;
+        }
+        finally {
+            lock.writeLock().unlock();
+        }
     }
 }
