@@ -169,7 +169,11 @@ public final class Index {
     public Set<String> search(String token){
         lock.readLock().lock();
         try{
-            return results.get(normalizer.normalize(token)).stream()
+            Set<SearchResult> res = results.get(normalizer.normalize(token));
+            if(res == null)
+                return Collections.emptySet();
+
+            return res.stream()
                     .map(SearchResult::filePath).collect(Collectors.toSet());
         }finally {
             lock.readLock().unlock();
