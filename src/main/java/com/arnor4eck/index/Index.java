@@ -11,14 +11,14 @@ public final class Index {
     private final FileReader reader;
     private final Tokenizer tokenizer;
     private final Normalizer normalizer;
-    private final Searcher searcher;
 
     private final Map<String, Set<SearchResult>> results;
     private final Set<SearchResult> indexedFiles;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public Index(FileReader reader, Tokenizer tokenizer,
-                 Normalizer normalizer, Searcher searcher) {
+    public Index(FileReader reader,
+                 Tokenizer tokenizer,
+                 Normalizer normalizer) {
         this.reader = reader;
         this.tokenizer = tokenizer;
         this.normalizer = normalizer;
