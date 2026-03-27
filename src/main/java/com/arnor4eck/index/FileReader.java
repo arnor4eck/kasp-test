@@ -1,5 +1,6 @@
 package com.arnor4eck.index;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface FileReader {
      * @param file Файл, подлежащий чтению
      * @return String - содержимое файла
      * */
-    String readFile(Path file);
+    String readFile(Path file) throws IOException;
 
     /** Возвращает поддерживыемые разрешения файлов
      * @return List<String> - разрешения файлов
