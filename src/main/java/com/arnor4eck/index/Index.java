@@ -18,6 +18,12 @@ public final class Index {
     private final Set<SearchResult> indexedFiles;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+    public Index(){
+        this(new TxtFileReader(),
+            new FullWordsTokenizer(),
+            new ToLowerCaseNormalizer());
+    }
+
     public Index(FileReader reader,
                  Tokenizer tokenizer,
                  Normalizer normalizer) {
@@ -160,11 +166,22 @@ public final class Index {
      * @param token Токен, по которому ведётся поиск
      * @return Set<String> - Множество файлов, в которых присутствует токен
      * */
-    Set<String> search(String token){
+    public Set<String> search(String token){
         lock.readLock().lock();
         try{
             return results.get(normalizer.normalize(token)).stream()
                     .map(SearchResult::filePath).collect(Collectors.toSet());
+        }finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public List<String> getIndexedFiles(){
+        lock.readLock().lock();
+        try{
+            return indexedFiles.stream()
+                    .map(SearchResult::filePath)
+                    .collect(Collectors.toList());
         }finally {
             lock.readLock().unlock();
         }
