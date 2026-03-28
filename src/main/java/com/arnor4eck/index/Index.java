@@ -2,7 +2,6 @@ package com.arnor4eck.index;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -187,7 +186,8 @@ public final class Index {
                 return Collections.emptySet();
 
             return res.stream()
-                    .map(SearchResult::filePath).collect(Collectors.toSet());
+                    .map(SearchResult::filePath)
+                    .collect(Collectors.toSet());
         }finally {
             lock.readLock().unlock();
         }
