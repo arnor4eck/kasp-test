@@ -12,12 +12,13 @@ public final class Index {
     private final FileReader reader;
     private final Tokenizer tokenizer;
     private final Normalizer normalizer;
+    private final DirScanner dirScanner;
 
     private final Map<String, Set<SearchResult>> results;
     private final Set<SearchResult> indexedFiles;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public Index(){
+    public Index() throws IOException {
         this(new TxtFileReader(),
             new FullWordsTokenizer(),
             new ToLowerCaseNormalizer());
@@ -25,13 +26,17 @@ public final class Index {
 
     public Index(FileReader reader,
                  Tokenizer tokenizer,
-                 Normalizer normalizer) {
+                 Normalizer normalizer) throws IOException {
         this.reader = Objects.requireNonNull(reader);
         this.tokenizer = Objects.requireNonNull(tokenizer);
         this.normalizer = Objects.requireNonNull(normalizer);
 
+        this.dirScanner = new DirScanner(new DefaultIndexHandler(this), reader.getPossibleSuffixes());
         this.results = new HashMap<>();
         this.indexedFiles = new HashSet<>();
+
+        this.dirScanner.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(dirScanner::stop));
     }
 
     /** Добавление файла в индекс
@@ -92,18 +97,20 @@ public final class Index {
             throw new IndexException(String.format("Not a directory: %s",
                     dir.toAbsolutePath()));
 
-        List<Path> indexedFiles;
-        try(Stream<Path> files = recursive ? Files.walk(dir) : Files.list(dir)){
-            indexedFiles = files
-                    .filter(Files::isRegularFile)
-                    .filter(this::isSupportedFile)
-                    .toList();
-        }
-
         lock.writeLock().lock();
         try {
+            List<Path> indexedFiles;
+            try(Stream<Path> files = recursive ? Files.walk(dir) : Files.list(dir)){
+                indexedFiles = files
+                        .filter(Files::isRegularFile)
+                        .filter(this::isSupportedFile)
+                        .toList();
+            }
+
             for(Path file : indexedFiles)
                 this.addFile(file.toAbsolutePath().toString());
+
+            this.dirScanner.addDirToWatcher(path, recursive);
         }finally {
             lock.writeLock().unlock();
         }

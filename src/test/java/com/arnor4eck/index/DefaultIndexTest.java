@@ -17,6 +17,8 @@ public class DefaultIndexTest {
     @TempDir
     private Path tempDir;
 
+    public DefaultIndexTest() throws IOException {}
+
     // Index file
     @Test
     public void testShouldSaveOnlyOnce() throws IOException {
