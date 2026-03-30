@@ -41,3 +41,10 @@ java -jar build/libs/kasp-test-1.0-SNAPSHOT.jar -Dconsole.encoding=UTF-8
 ```bash
 ./gradlew test
 ```
+
+# Документация
+
+```bash
+.\gradlew javadoc
+build/docs/javadoc/com/arnor4eck/index/package-summary.html
+```
