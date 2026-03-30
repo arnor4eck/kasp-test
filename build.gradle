@@ -16,6 +16,12 @@ application {
     mainClass = 'com.arnor4eck.Main'
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.arnor4eck.Main'
+    }
+}
+
 repositories {
     mavenCentral()
 }

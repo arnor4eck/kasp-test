@@ -9,21 +9,22 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
-    private static final String PROMPT = "Введите команду: ";
+    private static final String PROMPT = "Enter command: ";
 
     public static void main(String[] args) throws UnsupportedEncodingException {
 
         System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
+        System.setErr(new java.io.PrintStream(System.err, true, "UTF-8"));
 
         Index index;
         try {
             index = new Index();
         } catch (IOException e) {
-            System.err.printf("Ошибка инициализации индекса: %s", e.getMessage());
+            System.err.printf("Index initialization error: %s", e.getMessage());
             return;
         }
 
-        System.out.println("=== Индексация текстовых файлов ===");
+        System.out.println("\t\tText File Indexing");
         printHelp();
         System.out.println();
 
@@ -34,7 +35,6 @@ public class Main {
                 line = in.nextLine();
                 if (line == null)
                     break;
-
 
                 line = line.trim();
                 if (line.isEmpty())
@@ -54,13 +54,13 @@ public class Main {
                         case "remove" -> handleRemove(index, arg);
                         case "help" -> printHelp();
                         case "exit", "q" -> {
-                            System.out.println("Выход");
+                            System.out.println("Exiting");
                             return;
                         }
-                        default -> System.out.println("Неизвестная команда: '%s' Введите 'help' для справки.");
+                        default -> System.out.println("Unknown command: '%s'. Type 'help' for instructions.");
                     }
                 } catch (Exception e) {
-                    System.out.printf("Ошибка: %s%n", e.getMessage());
+                    System.out.printf("Error: %s%n", e.getMessage());
                 }
             }
         }
@@ -68,43 +68,43 @@ public class Main {
 
     private static void handleAdd(Index index, String path) {
         if (path == null || path.isBlank()) {
-            System.out.println("Использование: add <путь_к_файлу>");
+            System.out.println("Usage: add <file_path>");
             return;
         }
 
         if (index.addFile(path.trim()))
-            System.out.printf("Файл добавлен в индекс: %s%n", path.trim());
+            System.out.printf("File added to index: %s%n", path.trim());
         else
-            System.out.printf("Файл уже в индексе: %s%n", path.trim());
+            System.out.printf("File already in index: %s%n", path.trim());
     }
 
     private static void handleAddDir(Index index, String path, boolean recursive) {
         if (path == null || path.isBlank()) {
-            System.out.println("Использование: adddir <путь_к_каталогу>");
+            System.out.println("Usage: adddir <directory_path>");
             return;
         }
 
         try {
             index.addDir(path.trim(), recursive);
-            System.out.printf("Директория добавлена в индекс: %s %s%n", path.trim(),
-                (recursive ? " (рекурсивно)" : ""));
+            System.out.printf("Directory added to index: %s %s%n", path.trim(),
+                (recursive ? " (recursively)" : ""));
         } catch (IOException e) {
-            System.out.printf("Ошибка: %s%n", e.getMessage());
+            System.out.printf("Error: %s%n", e.getMessage());
         }
     }
 
     private static void handleSearch(Index index, String word) {
         if (word == null || word.isBlank()) {
-            System.out.println("Использование: search <слово>");
+            System.out.println("Usage: search <word>");
             return;
         }
 
         Set<String> res = index.search(word.trim());
 
         if (res.isEmpty())
-            System.out.println("Ничего не найдено");
+            System.out.println("Nothing found");
         else {
-            System.out.printf("Найдено файлов: %d%n", res.size());
+            System.out.printf("Files found: %d%n", res.size());
             for (String f : res)
                 System.out.printf("\t%s%n", f);
         }
@@ -114,9 +114,9 @@ public class Main {
         List<String> files = index.getIndexedFiles();
 
         if (files.isEmpty())
-            System.out.println("Пустой индес");
+            System.out.println("Index is empty");
         else {
-            System.out.printf("Файлов в индексе: %d%n", files.size());
+            System.out.printf("Files in index: %d%n", files.size());
             for (String f : files)
                 System.out.printf("\t%s%n", f);
         }
@@ -124,25 +124,25 @@ public class Main {
 
     private static void handleRemove(Index index, String path) {
         if (path == null || path.isBlank()) {
-            System.out.println("Использование: remove <путь_к_файлу>");
+            System.out.println("Usage: remove <file_path>");
             return;
         }
 
         if (index.removeFile(path.trim()))
-            System.out.printf("Файл удалён из индекса: %s%n", path.trim());
+            System.out.printf("File removed from index: %s%n", path.trim());
         else
-            System.out.printf("Файл не найден в индексе: %s%n", path.trim());
+            System.out.printf("File not found in index: %s%n", path.trim());
     }
 
     private static void printHelp() {
-        System.out.println("Команды:");
-        System.out.println("\tadd <path>\t- добавить файл в индекс;");
-        System.out.println("\tadddir <path>\t- добавить каталог в индекс;");
-        System.out.println("\tadddirr <path>\t- добавить каталог рекурсивно;");
-        System.out.println("\tsearch <word>\t- поиск файлов по слову;");
-        System.out.println("\tlist\t- показать все индексированные файлы;");
-        System.out.println("\tremove <path>\t- удалить файл из индекса;");
-        System.out.println("\thelp\t- показать эту справку;");
-        System.out.println("\texit / q\t- выход");
+        System.out.println("Commands:");
+        System.out.println("\tadd <path>\t- add a file to the index;");
+        System.out.println("\tadddir <path>\t- add a directory to the index;");
+        System.out.println("\tadddirr <path>\t- add a directory recursively;");
+        System.out.println("\tsearch <word>\t- search files by word;");
+        System.out.println("\tlist\t- show all indexed files;");
+        System.out.println("\tremove <path>\t- remove a file from the index;");
+        System.out.println("\thelp\t- show this help;");
+        System.out.println("\texit / q\t- exit");
     }
 }
