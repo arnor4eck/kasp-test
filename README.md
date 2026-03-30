@@ -30,6 +30,11 @@ java -version
 ./gradlew run
 ```
 
+## Запуск через Java
+```bash
+java -jar build/libs/kasp-test-1.0-SNAPSHOT.jar -Dconsole.encoding=UTF-8
+```
+
 # Запуск тестов
 
 ## Запустить все тесты
